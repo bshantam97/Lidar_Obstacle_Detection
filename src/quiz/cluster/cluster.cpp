@@ -98,10 +98,11 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 			continue;
 		}
 		// Kd-Tree Search
-		std::vector<int> neighbors = tree->search(points[i], distanceTol);	
-		for (int j = 0; j < neighbors.size(); j++) {
-			Set.insert(neighbors[j]);
-			queue.push_back(neighbors[j]);
+		std::vector<int> neighbors = tree->search(points[i], distanceTol);
+		// for (int j = 0; j < neighbors.size(); j++)
+		for (auto ids : neighbors) {
+			Set.insert(ids);
+			queue.push_back(ids);
 		}
 		clusters.push_back(queue);
 		queue.clear();
