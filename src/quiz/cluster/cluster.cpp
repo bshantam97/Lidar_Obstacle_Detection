@@ -6,7 +6,6 @@
 #include <chrono>
 #include <string>
 #include "kdtree.h"
-#include <queue>
 #include <unordered_set>
 
 // Arguments:
