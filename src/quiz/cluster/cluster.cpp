@@ -91,7 +91,6 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 	// A set of vectors to store the explored elements
 	std::unordered_set<int> Set;
 	
-	// Try level order traversal ?
 	for (int i = 0; i < points.size(); i++) {
 		queue.push_back(i);
 		if (Set.count(i)) {
