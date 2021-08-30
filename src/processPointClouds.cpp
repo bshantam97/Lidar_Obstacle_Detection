@@ -20,6 +20,9 @@ void ProcessPointClouds<PointT>::numPoints(typename pcl::PointCloud<PointT>::Ptr
 }
 
 
+// The arguments for the filtering cloud is the input cloud, the minimum and maximum points representing region of interest
+// and filter resolution
+// Eigen::Vector4f is a 4x1 float vector
 template<typename PointT>
 typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(typename pcl::PointCloud<PointT>::Ptr cloud, float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint)
 {
@@ -28,12 +31,54 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     auto startTime = std::chrono::steady_clock::now();
 
     // TODO:: Fill in the function to do voxel grid point reduction and region based filtering
+    pcl::VoxelGrid<PointT> voxel;
+    typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+    typename pcl::PointCloud<PointT>::Ptr cloud_crop(new pcl::PointCloud<PointT>);
+    
+    voxel.setInputCloud(cloud);
+    voxel.setLeafSize(filterRes, filterRes, filterRes);
+    voxel.filter(*cloudFiltered);
+
+    // Now what we need to do is to crop the region as we only care about a certain distance till which 
+    // the car can see
+    // Setting it tp true gives the points inside the cropped box
+    pcl::CropBox<PointT> box_crop(true);
+    box_crop.setMin(minPoint);
+    box_crop.setMax(maxPoint);
+    box_crop.setInputCloud(cloudFiltered);
+    box_crop.filter(*cloud_crop);
+
+    // Remove points from the roof of the car
+    // Now pcl::CropBox<PointT> inherits the filter method that returns the std::vector<int> &indices that have
+    // been filtered
+    std::vector<int> indices;
+    pcl::CropBox<PointT> roof(true);
+    roof.setMin(Eigen::Vector4f(-1.5, -1.7, -1, 1));
+    roof.setMax(Eigen::Vector4f(2.6, 1.7, -.4, 1));
+    roof.setInputCloud(cloud_crop);
+    roof.filter(indices); // Return the filter indices
+
+    // This will be used to obtain the inlier indices on the roof 
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+
+    for (int point: indices)
+        inliers->indices.push_back(point);
+    // Imagine it this way
+    // We create a extract indices object and input the cropped point cloud into it
+    // After this we set the indices that we want to filter out from the cropped cloud 
+    // and then filter the point cloud and save it into point cloud. This will remove the roof points
+
+    pcl::ExtractIndices<PointT> extract;
+    extract.setInputCloud(cloud_crop);
+    extract.setIndices(inliers);
+    extract.setNegative(true);
+    extract.filter(*cloud_crop);
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "filtering took " << elapsedTime.count() << " milliseconds" << std::endl;
 
-    return cloud;
+    return cloud_crop;
 
 }
 

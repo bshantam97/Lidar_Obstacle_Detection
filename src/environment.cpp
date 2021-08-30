@@ -84,6 +84,23 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     }
 }
 
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer) {
+    // Create the point processor object on the heap
+    ProcessPointClouds<pcl::PointXYZI> *pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
+
+    // Load the PCD File
+    pcl::PointCloud<pcl::PointXYZI>::Ptr inputPointCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+
+    // Filter the input point cloud using Voxel grid downsampling
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputPointCloud, 0.2 , 
+                                                              Eigen::Vector4f (-15, -15, -15, 1), Eigen::Vector4f (15, 15, 15, 1));
+
+    // Segment the plane and the obstacle
+    // This will return the indices for the obstacle and the plane
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segPlane = pointProcessor->SegmentPlane(filteredPointCloud,1000,0.2); 
+    renderPointCloud(viewer, segPlane.first, "obstacle", Color(1,0,0));
+    renderPointCloud(viewer, segPlane.second, "Plane", Color(0,1,0));
+}
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& viewer)
@@ -116,8 +133,9 @@ int main (int argc, char** argv)
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
-    simpleHighway(viewer);
-
+    // simpleHighway(viewer);
+    cityBlock(viewer);
+    
     while (!viewer->wasStopped ())
     {
         viewer->spinOnce ();
