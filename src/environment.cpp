@@ -123,6 +123,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
                                                                 Eigen::Vector4f(-20, -7, -10, 1), Eigen::Vector4f(20,8,10,1));
     // Now we use RANSAC to Segment out our filtered cloud
     // This returns the inliers indices
+    // Ransac takes the number of iterations and the distance tolerance for fitting plane
     std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 1000, 0.2);
 
     // Create pcl::PointCloud objects for plane and obstacles
