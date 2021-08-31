@@ -84,17 +84,17 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     }
 }
 
-void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer) {
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointClouds<pcl::PointXYZI> *pointProcessor, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud) {
     // Create the point processor object on the heap
-    ProcessPointClouds<pcl::PointXYZI> *pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
+    // ProcessPointClouds<pcl::PointXYZI> *pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
 
     // Load the PCD File
-    pcl::PointCloud<pcl::PointXYZI>::Ptr inputPointCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+    // pcl::PointCloud<pcl::PointXYZI>::Ptr inputPointCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
 
     // Filter the input point cloud using Voxel grid downsampling
     // So when you open the window if you move towards the right that is the negative y axis
     // The max point is the top left corner and the minimum is the bottom right corner from your perspective
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputPointCloud, 0.2, 
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.2, 
                                                               Eigen::Vector4f (-20, -7, -10, 1), Eigen::Vector4f (20, 8, 10, 1));
 
     // Segment the plane and the obstacle
