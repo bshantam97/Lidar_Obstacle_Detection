@@ -7,6 +7,7 @@
 #include "processPointClouds.h"
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
+#include "ransac.cpp"
 
 std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
@@ -84,12 +85,10 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     }
 }
 
+// Here we are passing the input cloud as a const reference as we just need it as an input
+// we are not modifying its value
+// Initialize the process point cloud object on the heap
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointClouds<pcl::PointXYZI> *pointProcessor, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud) {
-    // Create the point processor object on the heap
-    // ProcessPointClouds<pcl::PointXYZI> *pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
-
-    // Load the PCD File
-    // pcl::PointCloud<pcl::PointXYZI>::Ptr inputPointCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
 
     // Filter the input point cloud using Voxel grid downsampling
     // So when you open the window if you move towards the right that is the negative y axis
@@ -116,6 +115,33 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
     }
     // renderPointCloud(viewer, segPlane.first, "obstacle", Color(1,0,0));
     renderPointCloud(viewer, segPlane.second, "Plane", Color(0,1,0));
+}
+
+void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud, ProcessPointClouds<pcl::PointXYZI> *pointProcessor) {
+    // The first step is to filter the point cloud
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.2, 
+                                                                Eigen::Vector4f(-20, -7, -10, 1), Eigen::Vector4f(20,8,10,1));
+    // Now we use RANSAC to Segment out our filtered cloud
+    // This returns the inliers indices
+    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 1000, 0.2);
+
+    // Create pcl::PointCloud objects for plane and obstacles
+    pcl::PointCloud<pcl::PointXYZI>::Ptr plane(new pcl::PointCloud<pcl::PointXYZI>());
+    pcl::PointCloud<pcl::PointXYZI>::Ptr obstacle(new pcl::PointCloud<pcl::PointXYZI>());
+
+    for (int index = 0; index < filteredPointCloud->points.size(); index++) {
+        // What this is doing is that it is returning the XYZI point values at std::vector points
+        pcl::PointXYZI point = filteredPointCloud->points[index];
+
+        // Now we will check whether the index exists in the set or not
+        if (inliers.count(index)){
+            plane->points.push_back(point);
+        } else {
+            obstacle->points.push_back(point);
+        }
+    }
+    renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
+    renderPointCloud(viewer, plane, "plane", Color(0,1,0));
 }
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
@@ -149,11 +175,36 @@ int main (int argc, char** argv)
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
-    // simpleHighway(viewer);
-    cityBlock(viewer);
+    ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>;
+    // std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
+
+    // Point to the beginning of the dataset
+    // auto streamIterator = stream.begin();
+    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
+    inputCloudI = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+    ObstacleDetection(viewer, inputCloudI, pointProcessorI);
     
-    while (!viewer->wasStopped ())
-    {
-        viewer->spinOnce ();
-    } 
+    while (!viewer->wasStopped()) {
+        viewer->spinOnce();
+    }
+
+    // while (!viewer->wasStopped ())
+    // {
+    //     // Clear the viewer
+    //     viewer->removeAllPointClouds();
+    //     viewer->removeAllShapes();
+
+    //     // Load pcd and run obstacle detection
+    //     inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
+    //     cityBlock(viewer, pointProcessorI, inputCloudI);
+    //     streamIterator++;
+
+    //     // I think basically so that the viewer goes on for an infinite period of time
+    //     if (streamIterator == stream.end()) {
+    //         streamIterator = stream.begin();
+    //     }
+
+    //     // Controls the frame rate
+    //     viewer->spinOnce();
+    // } 
 }

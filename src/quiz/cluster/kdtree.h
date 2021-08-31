@@ -42,7 +42,7 @@ struct KdTree
 		} else {
 			// Now the logic behind this is 0 is for x axis and 1 is for y axis
 			// Even depths are for x alignment and odd depths are for y alignment
-			uint currentDim = depth % 2;
+			uint currentDim = depth % 3;
 			if (points[currentDim] < (node->point[currentDim])) {
 				_insert(node->left, points, depth+1,id);
 			} else {
@@ -66,11 +66,13 @@ struct KdTree
 			return;
 		}
 		if (node != nullptr) {
-			// First we check whether it is in the box region or not 
+			// First we check whether it is in the box/cube region or not 
 			if (node->point[0] >= (target[0] - distanceTol) && 
 			node->point[0] <= (target[0] + distanceTol) && 
-			node->point[1] >= (target[1]-distanceTol) && 
-			node->point[1] <= (target[1]+distanceTol)) {
+			node->point[1] >= (target[1] - distanceTol) && 
+			node->point[1] <= (target[1] + distanceTol) &&
+			node->point[2] >= (target[2] - distanceTol) &&
+			node->point[2] <= (target[2] + distanceTol)) {
 				// If we have determined that the point is in the box 
 				// we need to determine whether it is in the circle or not
 				auto distance = std::sqrt(std::pow((node->point[0]-target[0]),2) + std::pow((node->point[1]-target[1]),2));
@@ -79,8 +81,9 @@ struct KdTree
 				}
 			}
 			// The next if statement will be very similar to the insert function
-			// Below We calculated the current dimension. 0 = x and 1 = y
-			uint current_dim = depth % 2;
+			// Below We calculated the current dimension. 0 = x and 1 = y and 2 = z
+			// The logic is that at depth 0 we get an x axis divison, depth 1 gives y axis division and depth 2 gives z axis division
+			uint current_dim = depth % 3;
 			// What we need to do now is check across the boundary whether the boundary point is less than
 			// Basically comapare the edges
 			if ((target[current_dim]-distanceTol) < node->point[current_dim])

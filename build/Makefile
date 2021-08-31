@@ -177,6 +177,33 @@ src/processPointClouds.cpp.s:
 	$(MAKE) -f CMakeFiles/environment.dir/build.make CMakeFiles/environment.dir/src/processPointClouds.cpp.s
 .PHONY : src/processPointClouds.cpp.s
 
+src/ransac.o: src/ransac.cpp.o
+
+.PHONY : src/ransac.o
+
+# target to build an object file
+src/ransac.cpp.o:
+	$(MAKE) -f CMakeFiles/environment.dir/build.make CMakeFiles/environment.dir/src/ransac.cpp.o
+.PHONY : src/ransac.cpp.o
+
+src/ransac.i: src/ransac.cpp.i
+
+.PHONY : src/ransac.i
+
+# target to preprocess a source file
+src/ransac.cpp.i:
+	$(MAKE) -f CMakeFiles/environment.dir/build.make CMakeFiles/environment.dir/src/ransac.cpp.i
+.PHONY : src/ransac.cpp.i
+
+src/ransac.s: src/ransac.cpp.s
+
+.PHONY : src/ransac.s
+
+# target to generate assembly for a file
+src/ransac.cpp.s:
+	$(MAKE) -f CMakeFiles/environment.dir/build.make CMakeFiles/environment.dir/src/ransac.cpp.s
+.PHONY : src/ransac.cpp.s
+
 src/render/render.o: src/render/render.cpp.o
 
 .PHONY : src/render/render.o
@@ -219,6 +246,9 @@ help:
 	@echo "... src/processPointClouds.o"
 	@echo "... src/processPointClouds.i"
 	@echo "... src/processPointClouds.s"
+	@echo "... src/ransac.o"
+	@echo "... src/ransac.i"
+	@echo "... src/ransac.s"
 	@echo "... src/render/render.o"
 	@echo "... src/render/render.i"
 	@echo "... src/render/render.s"

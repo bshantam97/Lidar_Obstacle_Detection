@@ -96,7 +96,7 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 			queue.clear();
 			continue;
 		}
-		// Kd-Tree Search
+		// Kd-Tree Search for extracting nearest neighbors points
 		std::vector<int> neighbors = tree->search(points[i], distanceTol);
 		// for (int j = 0; j < neighbors.size(); j++)
 		for (auto ids : neighbors) {

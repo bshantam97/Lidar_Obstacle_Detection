@@ -17,8 +17,6 @@ string
 -
 kdtree.h
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/quiz/cluster/kdtree.h
-queue
--
 unordered_set
 -
 
@@ -29,6 +27,10 @@ unordered_set
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/box.h
 Eigen/Geometry
 -
+
+/home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.cpp
+render.h
+/home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.h
 
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.h
 pcl/visualization/pcl_visualizer.h
