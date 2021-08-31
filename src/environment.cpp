@@ -176,35 +176,34 @@ int main (int argc, char** argv)
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
     ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>;
-    // std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
+    std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
 
     // Point to the beginning of the dataset
-    // auto streamIterator = stream.begin();
+    auto streamIterator = stream.begin();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
-    inputCloudI = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    ObstacleDetection(viewer, inputCloudI, pointProcessorI);
+    // inputCloudI = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
     
-    while (!viewer->wasStopped()) {
-        viewer->spinOnce();
-    }
-
-    // while (!viewer->wasStopped ())
-    // {
-    //     // Clear the viewer
-    //     viewer->removeAllPointClouds();
-    //     viewer->removeAllShapes();
-
-    //     // Load pcd and run obstacle detection
-    //     inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
-    //     cityBlock(viewer, pointProcessorI, inputCloudI);
-    //     streamIterator++;
-
-    //     // I think basically so that the viewer goes on for an infinite period of time
-    //     if (streamIterator == stream.end()) {
-    //         streamIterator = stream.begin();
-    //     }
-
-    //     // Controls the frame rate
+    // while (!viewer->wasStopped()) {
     //     viewer->spinOnce();
-    // } 
+    // }
+
+    while (!viewer->wasStopped ())
+    {
+        // Clear the viewer
+        viewer->removeAllPointClouds();
+        viewer->removeAllShapes();
+
+        // Load pcd and run obstacle detection
+        inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
+        ObstacleDetection(viewer, inputCloudI, pointProcessorI);
+        streamIterator++;
+
+        // I think basically so that the viewer goes on for an infinite period of time
+        if (streamIterator == stream.end()) {
+            streamIterator = stream.begin();
+        }
+
+        // Controls the frame rate
+        viewer->spinOnce();
+    } 
 }

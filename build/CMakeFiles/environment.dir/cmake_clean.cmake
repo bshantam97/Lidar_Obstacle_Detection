@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/environment.dir/src/cluster.cpp.o"
   "CMakeFiles/environment.dir/src/environment.cpp.o"
   "CMakeFiles/environment.dir/src/processPointClouds.cpp.o"
   "CMakeFiles/environment.dir/src/ransac.cpp.o"
