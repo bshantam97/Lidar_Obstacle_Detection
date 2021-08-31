@@ -70,7 +70,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     // renderPointCloud(viewer, segmentCloud.first,"obstCloud",Color(1,0,0));
     // renderPointCloud(viewer, segmentCloud.second,"planeCloud",Color(0,1,0));
     // Get the cluster obstacles
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 1.0,3,30);
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.4 ,100,5000);
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
     for (pcl::PointCloud<pcl::PointXYZ>::Ptr cluster : cloudClusters) {
@@ -92,13 +92,29 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer) {
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputPointCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
 
     // Filter the input point cloud using Voxel grid downsampling
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputPointCloud, 0.2 , 
-                                                              Eigen::Vector4f (-15, -15, -15, 1), Eigen::Vector4f (15, 15, 15, 1));
+    // So when you open the window if you move towards the right that is the negative y axis
+    // The max point is the top left corner and the minimum is the bottom right corner from your perspective
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputPointCloud, 0.2, 
+                                                              Eigen::Vector4f (-20, -7, -10, 1), Eigen::Vector4f (20, 8, 10, 1));
 
     // Segment the plane and the obstacle
     // This will return the indices for the obstacle and the plane
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segPlane = pointProcessor->SegmentPlane(filteredPointCloud,1000,0.2); 
-    renderPointCloud(viewer, segPlane.first, "obstacle", Color(1,0,0));
+    
+    // Create the cluster object
+    // In this we input the obstacle points only for clustering
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segPlane.first, 0.4, 100, 5000);
+    int clusterId = 0;
+    std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
+    for (pcl::PointCloud<pcl::PointXYZI>::Ptr clusters: cloudClusters) {
+        std::cout << " Cluster size is ";
+        pointProcessor->numPoints(clusters);
+        Box box = pointProcessor->BoundingBox(clusters);
+        renderPointCloud(viewer, clusters, "obstacle Cloud" + std::to_string(clusterId), colors[clusterId % 3]); // Dividing by 3 so that remained is always [0,2]
+        renderBox(viewer, box, clusterId);
+        ++clusterId;
+    }
+    // renderPointCloud(viewer, segPlane.first, "obstacle", Color(1,0,0));
     renderPointCloud(viewer, segPlane.second, "Plane", Color(0,1,0));
 }
 
