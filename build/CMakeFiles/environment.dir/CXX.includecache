@@ -7,10 +7,6 @@
 #IncludeRegexTransform: 
 
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/cluster.cpp
-render/render.h
-/home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.h
-render/box.h
-/home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/box.h
 chrono
 -
 string
@@ -31,10 +27,14 @@ processPointClouds.cpp
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/processPointClouds.cpp
 ransac.cpp
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/ransac.cpp
+cluster.cpp
+/home/shantam97/SFND_Lidar_Obstacle_Detection/src/cluster.cpp
 
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/kdtree.h
 render/render.h
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.h
+Eigen/StdVector
+-
 
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/processPointClouds.cpp
 processPointClouds.h

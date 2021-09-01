@@ -392,7 +392,9 @@ CMakeFiles/environment.dir/src/cluster.cpp.o: /usr/include/vtk-7.1/vtk_kwiml.h
 CMakeFiles/environment.dir/src/cluster.cpp.o: /usr/include/vtk-7.1/vtkkwiml/abi.h
 CMakeFiles/environment.dir/src/cluster.cpp.o: /usr/include/vtk-7.1/vtkkwiml/int.h
 
+CMakeFiles/environment.dir/src/environment.cpp.o: ../src/cluster.cpp
 CMakeFiles/environment.dir/src/environment.cpp.o: ../src/environment.cpp
+CMakeFiles/environment.dir/src/environment.cpp.o: ../src/kdtree.h
 CMakeFiles/environment.dir/src/environment.cpp.o: ../src/processPointClouds.cpp
 CMakeFiles/environment.dir/src/environment.cpp.o: ../src/processPointClouds.h
 CMakeFiles/environment.dir/src/environment.cpp.o: ../src/ransac.cpp

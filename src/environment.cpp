@@ -8,6 +8,7 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 #include "ransac.cpp"
+#include "cluster.cpp"
 
 std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
@@ -124,8 +125,8 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     // Now we use RANSAC to Segment out our filtered cloud
     // This returns the inliers indices
     // Ransac takes the number of iterations and the distance tolerance for fitting plane
-    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 1000, 0.2);
 
+    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 1000, 0.2);
     // Create pcl::PointCloud objects for plane and obstacles
     pcl::PointCloud<pcl::PointXYZI>::Ptr plane(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacle(new pcl::PointCloud<pcl::PointXYZI>());
@@ -133,7 +134,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     for (int index = 0; index < filteredPointCloud->points.size(); index++) {
         // What this is doing is that it is returning the XYZI point values at std::vector points
         pcl::PointXYZI point = filteredPointCloud->points[index];
-
+        
         // Now we will check whether the index exists in the set or not
         if (inliers.count(index)){
             plane->points.push_back(point);
@@ -141,6 +142,33 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
             obstacle->points.push_back(point);
         }
     }
+
+    // Now lets construct the Kd-Tree using the filtered point cloud
+    KdTree<pcl::PointXYZI> *tree = new KdTree<pcl::PointXYZI>;
+
+    // Create point cloud iterator
+    pcl::PointCloud<pcl::PointXYZI>::iterator pit;
+
+    // Now we construct our KdTree and insert points into it
+    int id = 0;
+    for (pit = filteredPointCloud->begin(); pit != filteredPointCloud->end(); pit++) {
+        tree->insert(*pit,id);
+        id++;
+    }
+
+    // Now after constructing the KdTree we can pass it to the Euclidean clustering function
+    std::vector<std::vector<int>> clusters = euclideanCluster(obstacle, tree, 0.4);
+
+    // std::vector<std::vector<int>> clusters = euclideanCluster(obstacleVector, tree, 0.4);
+    // // Rendering the clusters
+    // int clusterId = 0;
+    // std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
+    // for (std::vector<int> cluster : clusters) {
+    //     pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>);
+    //     for (int indice:cluster) {
+    //         clusterCloud->points.push_back(pcl::PointXYZI(obstacleVector[indice][0], obstacleVector[indice][1], obstacleVector[indice][2], obstacleVector[indice][3]));
+    //     }
+    // }
     renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
     renderPointCloud(viewer, plane, "plane", Color(0,1,0));
 }
