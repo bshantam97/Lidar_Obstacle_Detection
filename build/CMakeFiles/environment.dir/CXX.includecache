@@ -33,8 +33,6 @@ cluster.cpp
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/kdtree.h
 render/render.h
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/render/render.h
-Eigen/StdVector
--
 
 /home/shantam97/SFND_Lidar_Obstacle_Detection/src/processPointClouds.cpp
 processPointClouds.h
