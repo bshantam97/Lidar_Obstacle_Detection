@@ -146,26 +146,21 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     // Now lets construct the Kd-Tree using the filtered point cloud
     KdTree<pcl::PointXYZI> *tree = new KdTree<pcl::PointXYZI>;
 
-    // Create point cloud iterator
-    pcl::PointCloud<pcl::PointXYZI>::iterator pit;
-
     // Now we construct our KdTree and insert points into it
-    int id = 0;
-    for (pit = filteredPointCloud->begin(); pit != filteredPointCloud->end(); pit++) {
-        tree->insert(*pit,id);
-        id++;
+    for (int i = 0; i < obstacle->points.size(); i++) {
+        tree->insert(obstacle->points[i], i);
     }
 
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
-    std::vector<std::vector<int>> clusters = euclideanCluster(obstacle, tree, 0.4);
-
+    std::vector<pcl::PointIndices> clusters = euclideanCluster(obstacle, tree, 0.35);
     // Render the clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
-    for (std::vector<int> cluster : clusters) {
-        pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>);
+    for (pcl::PointIndices cluster : clusters) {
+        pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>());
+        // pcl::PointXYZI inherits this struct that stores the point and intensity information
         pcl::_PointXYZI p;
-        for (int indice:cluster) {
+        for (int indice:cluster.indices) {
             p.x = obstacle->points[indice].x;
             p.y = obstacle->points[indice].y;
             p.z = obstacle->points[indice].z;
@@ -174,6 +169,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
         renderPointCloud(viewer, clusterCloud, "cluster"+std::to_string(clusterId), colors[clusterId%3]);
         ++clusterId;
     }
+
     // renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
     // renderPointCloud(viewer, plane, "plane", Color(0,1,0));
 }
