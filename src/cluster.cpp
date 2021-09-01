@@ -73,35 +73,35 @@
 
 // }
 template<typename PointT>
-std::vector<std::vector<int>> euclideanCluster(const typename pcl::PointCloud<PointT>::Ptr cloud, KdTree<PointT>* tree, float distanceTol)
+std::vector<pcl::PointIndices> euclideanCluster(const typename pcl::PointCloud<PointT>::Ptr cloud, KdTree<PointT>* tree, float distanceTol)
 {
 
 	// TODO: Fill out this function to return list of indices for each cluster
 
 	// This will return the cluster indices
-	std::vector<std::vector<int>> clusters;
+	std::vector<pcl::PointIndices> clusters;
 	
 	// This vector will be used to check the points
-	std::vector<int> queue;
+	pcl::PointIndices queue;
 
 	// A set of vectors to store the explored elements
 	std::unordered_set<int> Set;
 	
 	for (int i = 0; i < cloud->points.size(); i++) {
-		queue.push_back(i);
+		queue.indices.push_back(i);
 		if (Set.count(i)) {
-			queue.clear();
+			queue.indices.clear();
 			continue;
 		}
 		// Kd-Tree Search for extracting nearest neighbors points
 		std::vector<int> neighbors = tree->search(cloud->points[i], distanceTol);
 		// for (int j = 0; j < neighbors.size(); j++)
-		for (auto ids : neighbors) {
+		for (int ids : neighbors) {
 			Set.insert(ids);
-			queue.push_back(ids);
+			queue.indices.push_back(ids);
 		}
 		clusters.push_back(queue);
-		queue.clear();
+		queue.indices.clear();
 	}
 	return clusters;
 }
