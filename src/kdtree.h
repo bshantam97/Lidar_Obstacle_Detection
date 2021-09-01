@@ -1,8 +1,6 @@
-/* \author Aaron Brown */
-// Quiz on implementing kd tree
+/* \author Shantam Bajpai */
 
 #include "render/render.h"
-#include <Eigen/StdVector>
 
 // Structure to represent node of kd tree
 template<typename PointT>

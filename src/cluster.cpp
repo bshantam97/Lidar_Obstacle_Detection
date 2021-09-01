@@ -1,8 +1,5 @@
-/* \author Aaron Brown */
-// Quiz on implementing simple RANSAC line fitting
+/* \author Shantam Bajpai */
 
-// #include "render/render.h"
-// #include "render/box.h"
 #include <chrono>
 #include <string>
 #include "kdtree.h"

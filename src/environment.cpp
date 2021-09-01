@@ -1,4 +1,4 @@
-/* \author Aaron Brown */
+/* \author Shantam Bajpai */
 // Create simple 3d highway enviroment using PCL
 // for exploring self-driving car sensors
 
@@ -159,18 +159,23 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
     std::vector<std::vector<int>> clusters = euclideanCluster(obstacle, tree, 0.4);
 
-    // std::vector<std::vector<int>> clusters = euclideanCluster(obstacleVector, tree, 0.4);
-    // // Rendering the clusters
-    // int clusterId = 0;
-    // std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
-    // for (std::vector<int> cluster : clusters) {
-    //     pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>);
-    //     for (int indice:cluster) {
-    //         clusterCloud->points.push_back(pcl::PointXYZI(obstacleVector[indice][0], obstacleVector[indice][1], obstacleVector[indice][2], obstacleVector[indice][3]));
-    //     }
-    // }
-    renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
-    renderPointCloud(viewer, plane, "plane", Color(0,1,0));
+    // Render the clusters
+    int clusterId = 0;
+    std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
+    for (std::vector<int> cluster : clusters) {
+        pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>);
+        pcl::_PointXYZI p;
+        for (int indice:cluster) {
+            p.x = obstacle->points[indice].x;
+            p.y = obstacle->points[indice].y;
+            p.z = obstacle->points[indice].z;
+            clusterCloud->points.push_back(pcl::PointXYZI(p));
+        }
+        renderPointCloud(viewer, clusterCloud, "cluster"+std::to_string(clusterId), colors[clusterId%3]);
+        ++clusterId;
+    }
+    // renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
+    // renderPointCloud(viewer, plane, "plane", Color(0,1,0));
 }
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
