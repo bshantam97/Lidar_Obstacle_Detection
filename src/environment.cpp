@@ -126,7 +126,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     // This returns the inliers indices
     // Ransac takes the number of iterations and the distance tolerance for fitting plane
 
-    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 1000, 0.2);
+    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 200, 0.2);
     // Create pcl::PointCloud objects for plane and obstacles
     pcl::PointCloud<pcl::PointXYZI>::Ptr plane(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacle(new pcl::PointCloud<pcl::PointXYZI>());
@@ -144,7 +144,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     }
 
     // Now lets construct the Kd-Tree using the filtered point cloud
-    KdTree<pcl::PointXYZI> *tree = new KdTree<pcl::PointXYZI>;
+    KdTree<pcl::PointXYZI> *tree = new KdTree<pcl::PointXYZI>();
 
     // Now we construct our KdTree and insert points into it
     for (int i = 0; i < obstacle->points.size(); i++) {
@@ -152,7 +152,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     }
 
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
-    std::vector<pcl::PointIndices> clusters = euclideanCluster(obstacle, tree, 0.35);
+    std::vector<pcl::PointIndices> clusters = euclideanCluster(obstacle, tree, 100, 400, 3);
     // Render the clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
@@ -166,7 +166,9 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
             p.z = obstacle->points[indice].z;
             clusterCloud->points.push_back(pcl::PointXYZI(p));
         }
+        Box box = pointProcessor->BoundingBox(clusterCloud);
         renderPointCloud(viewer, clusterCloud, "cluster"+std::to_string(clusterId), colors[clusterId%3]);
+        renderBox(viewer, box, clusterId);
         ++clusterId;
     }
 
