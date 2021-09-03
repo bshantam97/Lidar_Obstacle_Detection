@@ -120,13 +120,13 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
 
 void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud, ProcessPointClouds<pcl::PointXYZI> *pointProcessor) {
     // The first step is to filter the point cloud
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.2, 
-                                                                Eigen::Vector4f(-20, -7, -10, 1), Eigen::Vector4f(20,8,10,1));
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.15, 
+                                                                Eigen::Vector4f(-20, -6, -5, 1), Eigen::Vector4f(30,7,5,1));
     // Now we use RANSAC to Segment out our filtered cloud
     // This returns the inliers indices
     // Ransac takes the number of iterations and the distance tolerance for fitting plane
 
-    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 200, 0.2);
+    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 100, 0.1);
     // Create pcl::PointCloud objects for plane and obstacles
     pcl::PointCloud<pcl::PointXYZI>::Ptr plane(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacle(new pcl::PointCloud<pcl::PointXYZI>());
@@ -152,7 +152,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     }
 
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
-    std::vector<pcl::PointIndices> clusters = euclideanCluster(obstacle, tree, 100, 400, 3);
+    std::vector<pcl::PointIndices> clusters = euclideanCluster<pcl::PointXYZI>(obstacle, tree, 100, 5000, 4);
     // Render the clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
@@ -160,7 +160,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
         pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>());
         // pcl::PointXYZI inherits this struct that stores the point and intensity information
         pcl::_PointXYZI p;
-        for (int indice:cluster.indices) {
+        for (auto indice:cluster.indices) {
             p.x = obstacle->points[indice].x;
             p.y = obstacle->points[indice].y;
             p.z = obstacle->points[indice].z;
@@ -168,12 +168,12 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
         }
         Box box = pointProcessor->BoundingBox(clusterCloud);
         renderPointCloud(viewer, clusterCloud, "cluster"+std::to_string(clusterId), colors[clusterId%3]);
-        renderBox(viewer, box, clusterId);
+        // renderBox(viewer, box, clusterId);
         ++clusterId;
     }
 
     // renderPointCloud(viewer, obstacle, "obstacle", Color(1,0,0));
-    // renderPointCloud(viewer, plane, "plane", Color(0,1,0));
+    renderPointCloud(viewer, plane, "plane", Color(0,1,0));
 }
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
@@ -228,6 +228,7 @@ int main (int argc, char** argv)
         // Load pcd and run obstacle detection
         inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
         ObstacleDetection(viewer, inputCloudI, pointProcessorI);
+        // cityBlock(viewer, pointProcessorI, inputCloudI);
         streamIterator++;
 
         // I think basically so that the viewer goes on for an infinite period of time
