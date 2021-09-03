@@ -126,7 +126,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     // This returns the inliers indices
     // Ransac takes the number of iterations and the distance tolerance for fitting plane
 
-    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 100, 0.1);
+    std::unordered_set<int> inliers = Ransac<pcl::PointXYZI>(filteredPointCloud, 100, 0.2);
     // Create pcl::PointCloud objects for plane and obstacles
     pcl::PointCloud<pcl::PointXYZI>::Ptr plane(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacle(new pcl::PointCloud<pcl::PointXYZI>());
@@ -152,7 +152,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     }
 
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
-    std::vector<pcl::PointIndices> clusters = euclideanCluster<pcl::PointXYZI>(obstacle, tree, 100, 5000, 4);
+    std::vector<pcl::PointIndices> clusters = euclideanCluster<pcl::PointXYZI>(obstacle, tree, 28, 1500, 2.5);
     // Render the clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};

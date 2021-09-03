@@ -15,6 +15,7 @@ std::vector<pcl::PointIndices> euclideanCluster(const typename pcl::PointCloud<P
 	std::vector<pcl::PointIndices> clusters;
 	
 	// This vector will be used to check the points
+	// pcl::PointIndices is an std::vector<int>
 	pcl::PointIndices queue;
 
 	// A set of vectors to store the explored elements
@@ -28,17 +29,17 @@ std::vector<pcl::PointIndices> euclideanCluster(const typename pcl::PointCloud<P
 		}
 		// Kd-Tree Search for extracting nearest neighbors points
 		std::vector<int> neighbors = tree->search(cloud->points[i], distanceTol);
-		// for (int j = 0; j < neighbors.size(); j++)
+		
 		for (int ids : neighbors) {
 			Set.insert(ids);
 			queue.indices.push_back(ids);
 		}
 		if (queue.indices.size() > minClusterSize && queue.indices.size() < maxClusterSize) {
 			clusters.push_back(queue);
-			queue.indices.clear();
 		} else {
 			queue.indices.clear();
 		}
+		queue.indices.clear();
 	}
 
 	auto endTime = std::chrono::steady_clock::now();

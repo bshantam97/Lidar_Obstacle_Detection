@@ -1,7 +1,5 @@
-/* \author Aaron Brown */
-// Quiz on implementing simple RANSAC line fitting
+/* \author Shantam Bajpai */
 
-// #include "render/render.h"
 #include <unordered_set>
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
@@ -69,7 +67,7 @@ std::unordered_set<int> Ransac(typename pcl::PointCloud<PointT>::Ptr cloud, int 
 			auto y = cloud->points[index].y;
 			auto z = cloud->points[index].z;
 
-			auto distance =  std::abs(A*x + B*y + C*z + D) 
+			auto distance =  std::fabs(A*x + B*y + C*z + D) 
 						/ std::sqrt(std::pow(A,2) + std::pow(B,2) + std::pow(C,2));
 
 			if (distance < distanceTol) {
