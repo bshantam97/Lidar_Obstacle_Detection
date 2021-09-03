@@ -120,8 +120,8 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
 
 void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud, ProcessPointClouds<pcl::PointXYZI> *pointProcessor) {
     // The first step is to filter the point cloud
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.15, 
-                                                                Eigen::Vector4f(-20, -6, -5, 1), Eigen::Vector4f(30,7,5,1));
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.2, 
+                                                                Eigen::Vector4f(-20, -6, -6, 1), Eigen::Vector4f(20,7,6,1));
     // Now we use RANSAC to Segment out our filtered cloud
     // This returns the inliers indices
     // Ransac takes the number of iterations and the distance tolerance for fitting plane
@@ -152,7 +152,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
     }
 
     // Now after constructing the KdTree we can pass it to the Euclidean clustering function
-    std::vector<pcl::PointIndices> clusters = euclideanCluster<pcl::PointXYZI>(obstacle, tree, 28, 1500, 2.5);
+    std::vector<pcl::PointIndices> clusters = euclideanCluster<pcl::PointXYZI>(obstacle, tree, 28, 500, 3.5);
     // Render the clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
@@ -168,7 +168,7 @@ void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl
         }
         Box box = pointProcessor->BoundingBox(clusterCloud);
         renderPointCloud(viewer, clusterCloud, "cluster"+std::to_string(clusterId), colors[clusterId%3]);
-        // renderBox(viewer, box, clusterId);
+        renderBox(viewer, box, clusterId);
         ++clusterId;
     }
 
