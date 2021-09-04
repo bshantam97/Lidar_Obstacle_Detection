@@ -120,7 +120,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
 
 void ObstacleDetection(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud, ProcessPointClouds<pcl::PointXYZI> *pointProcessor) {
     // The first step is to filter the point cloud
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.2, 
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredPointCloud = pointProcessor->FilterCloud(inputCloud, 0.15, 
                                                                 Eigen::Vector4f(-20, -6, -6, 1), Eigen::Vector4f(20,7,6,1));
     // Now we use RANSAC to Segment out our filtered cloud
     // This returns the inliers indices
